@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1_copy1",
+	"name": "incremntal_loop",
 	"properties": {
 		"activities": [
 			{
