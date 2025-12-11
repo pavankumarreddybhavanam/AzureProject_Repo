@@ -184,7 +184,7 @@
 												"parameters": {
 													"sinkcontainername": "bronzecontainer",
 													"sinkdirectoriename": {
-														"value": "@pipeline().parameters.sourcetable",
+														"value": "@item().sourcetable",
 														"type": "Expression"
 													},
 													"sinkfilename": "@concat(pipeline().parameters.sourcetable,'-',utcNow())"
@@ -319,7 +319,32 @@
 		"parameters": {
 			"Loopinput_param": {
 				"type": "array",
-				"defaultValue": "[ \t{ \t\"sourceschema\":dbo \t\"sourcetable\":DimArtist \t\"sourcecdc_column\":updated_at \t\"fromdate\" \t}, \t{ \t\"sourceschema\":dbo \t\"sourcetable\":DimUser \t\"sourcecdc_column\":updated_at \t\"fromdate\" \t}, \t{ \t\"sourceschema\":dbo \t\"sourcetable\":DimDate \t\"sourcecdc_column\":updated_at \t\"fromdate\" \t}, \t{ \t\"sourceschema\":dbo \t\"sourcetable\":DimTrack \t\"sourcecdc_column\":updated_at \t\"fromdate\" \t} ]"
+				"defaultValue": [
+					{
+						"sourceschema": "dbo",
+						"sourcetable": "DimArtist",
+						"sourcecdc_column": "updated_at",
+						"fromdate": ""
+					},
+					{
+						"sourceschema": "dbo",
+						"sourcetable": "DimUser",
+						"sourcecdc_column": "updated_at",
+						"fromdate": ""
+					},
+					{
+						"sourceschema": "dbo",
+						"sourcetable": "DimDate",
+						"sourcecdc_column": "updated_at",
+						"fromdate": ""
+					},
+					{
+						"sourceschema": "dbo",
+						"sourcetable": "DimTrack",
+						"sourcecdc_column": "updated_at",
+						"fromdate": ""
+					}
+				]
 			}
 		},
 		"variables": {
