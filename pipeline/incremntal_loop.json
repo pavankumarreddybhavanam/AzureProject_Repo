@@ -187,7 +187,10 @@
 														"value": "@item().sourcetable",
 														"type": "Expression"
 													},
-													"sinkfilename": "@concat(pipeline().parameters.sourcetable,'-',utcNow())"
+													"sinkfilename": {
+														"value": "@concat(item().sourcetable,'-',utcNow())",
+														"type": "Expression"
+													}
 												}
 											},
 											"enableLogging": false,
@@ -323,9 +326,7 @@
 						"activity": "ForEach1",
 						"dependencyConditions": [
 							"Failed",
-							"Succeeded",
-							"Completed",
-							"Skipped"
+							"Succeeded"
 						]
 					}
 				],
