@@ -335,13 +335,19 @@
 					{
 						"sourceschema": "dbo",
 						"sourcetable": "DimDate",
-						"sourcecdc_column": "updated_at",
+						"sourcecdc_column": "date",
 						"fromdate": ""
 					},
 					{
 						"sourceschema": "dbo",
 						"sourcetable": "DimTrack",
 						"sourcecdc_column": "updated_at",
+						"fromdate": ""
+					},
+					{
+						"sourceschema": "dbo",
+						"sourcetable": "FactStream",
+						"sourcecdc_column": "stream_timestamp",
 						"fromdate": ""
 					}
 				]
