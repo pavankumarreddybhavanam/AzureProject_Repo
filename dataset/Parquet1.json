@@ -1,0 +1,41 @@
+{
+	"name": "Parquet1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"sinkcontainername": {
+				"type": "string"
+			},
+			"sinkdirectoriename": {
+				"type": "string"
+			},
+			"sinkfilename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().sinkfilename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().sinkdirectoriename",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().sinkcontainername",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
