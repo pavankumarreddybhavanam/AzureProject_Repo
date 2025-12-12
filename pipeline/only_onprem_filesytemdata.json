@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "only_onprem_filesytemdata",
 	"properties": {
 		"activities": [
 			{
