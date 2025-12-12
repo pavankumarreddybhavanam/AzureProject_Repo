@@ -1,12 +1,12 @@
 {
-	"name": "ds_csv",
+	"name": "DelimitedText1",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Ls_FIlesystem",
+			"referenceName": "ls_adls",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"fileaname": {
+			"sinkfilename": {
 				"type": "string"
 			}
 		},
@@ -14,11 +14,12 @@
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "FileServerLocation",
+				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@dataset().fileaname",
+					"value": "@dataset().sinkfilename",
 					"type": "Expression"
-				}
+				},
+				"fileSystem": "onpremfilsystemdata"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
