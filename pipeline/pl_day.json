@@ -1,0 +1,49 @@
+{
+	"name": "pl_day",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata_month",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_getmetdata_month",
+						"type": "DatasetReference",
+						"parameters": {
+							"directory": {
+								"value": "@concat('DATA/flight/',pipeline().parameters.p_year)",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [],
+					"storeSettings": {
+						"type": "FileServerReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"p_year": {
+				"type": "string"
+			},
+			"p_month": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
