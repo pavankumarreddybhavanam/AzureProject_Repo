@@ -259,60 +259,56 @@
 									"type": "Expression"
 								}
 							}
-						}
-					]
-				}
-			},
-			{
-				"name": "ForEach-months",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "ForEach1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@activity('Filter_reuired_months').output.value",
-						"type": "Expression"
-					},
-					"isSequential": true,
-					"activities": [
+						},
 						{
-							"name": "Get Metadata_months",
-							"type": "GetMetadata",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Filter_reuired_months",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
-								"dataset": {
-									"referenceName": "ds_filsystem_months",
-									"type": "DatasetReference",
-									"parameters": {
-										"params_for_months": {
-											"value": "@concat(\n  'C:\\\\PAVAN_AZURE_FILES\\\\DATA\\\\flight\\\\year=',\n  variables('year'),\n  '\\\\month=',\n  item().name\n)\n",
-											"type": "Expression"
+								"expression": {
+									"value": "@greater(length(activity('Get Metadata_allmonths').output.value[0].name),0)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Set variable2",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "var2",
+											"value": "\"no\""
 										}
 									}
-								},
-								"fieldList": [],
-								"storeSettings": {
-									"type": "FileServerReadSettings",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "Set variable1",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "var1",
+											"value": "\"yes\""
+										}
+									}
+								]
 							}
 						}
 					]
@@ -331,6 +327,12 @@
 			},
 			"hour": {
 				"type": "Integer"
+			},
+			"var1": {
+				"type": "String"
+			},
+			"var2": {
+				"type": "String"
 			}
 		},
 		"annotations": []
