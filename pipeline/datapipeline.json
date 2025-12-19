@@ -274,7 +274,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@greater(length(activity('Get Metadata_allmonths').output.value[0].name),0)",
+									"value": "@greater(length(activity('filter_reuiredyears').output.value),0)",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
