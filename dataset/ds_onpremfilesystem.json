@@ -5,16 +5,15 @@
 			"referenceName": "Ls_FIlesystem",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"directory": {
-				"type": "string"
-			}
-		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "FileServerLocation"
+				"type": "FileServerLocation",
+				"folderPath": {
+					"value": "DATA/flight",
+					"type": "Expression"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",

@@ -50,13 +50,7 @@
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "ds_onpremfilesystem",
-						"type": "DatasetReference",
-						"parameters": {
-							"directory": {
-								"value": "@concat('DATA/flight/',activity('Lookup_watermark').output.firstRow.last_year)",
-								"type": "Expression"
-							}
-						}
+						"type": "DatasetReference"
 					},
 					"fieldList": [
 						"childItems"
