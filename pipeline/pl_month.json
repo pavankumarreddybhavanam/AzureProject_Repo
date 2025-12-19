@@ -20,7 +20,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"directorry": {
-								"value": "@concat('C:\\PAVAN_AZURE_FILES\\',pipeline().parameters.pYear)",
+								"value": "@concat('DATA/flight/',pipeline().parameters.pYear)",
 								"type": "Expression"
 							}
 						}
