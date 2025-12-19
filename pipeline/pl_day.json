@@ -36,6 +36,29 @@
 						"type": "DelimitedTextReadSettings"
 					}
 				}
+			},
+			{
+				"name": "Filter_reuired_date",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata_month",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata_month').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@greaterOrEquals(\n  int(item().name),\n  pipeline().parameters.p_date\n)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -44,6 +67,9 @@
 			},
 			"p_month": {
 				"type": "string"
+			},
+			"p_date": {
+				"type": "int"
 			}
 		},
 		"annotations": []
