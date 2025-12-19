@@ -1,0 +1,30 @@
+{
+	"name": "ds_filsystem_months",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Ls_FIlesystem",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"params_for_months": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"folderPath": {
+					"value": "@dataset().params_for_months",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
