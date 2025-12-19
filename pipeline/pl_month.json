@@ -101,6 +101,10 @@
 									"p_month": {
 										"value": "@item().name",
 										"type": "Expression"
+									},
+									"p_date": {
+										"value": "@pipeline().parameters.pDate",
+										"type": "Expression"
 									}
 								}
 							}
@@ -115,11 +119,9 @@
 			},
 			"pMonthWatermark": {
 				"type": "int"
-			}
-		},
-		"variables": {
-			"a": {
-				"type": "String"
+			},
+			"pDate": {
+				"type": "string"
 			}
 		},
 		"annotations": []
