@@ -1,0 +1,17 @@
+{
+	"name": "Ls_FIlesystem",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "C:\\PAVAN_AZURE_FILES",
+			"userId": "PAVAN KUMAR REDDY B",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI5ZDcyNmVkMy1hN2EzLTQ1NDEtOGFkNS01ZGNlNDk5YWRjMTUiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationRuntimeselfhosted",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

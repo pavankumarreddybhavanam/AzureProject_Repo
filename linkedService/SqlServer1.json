@@ -1,0 +1,17 @@
+{
+	"name": "SqlServer1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=True;data source=DESKTOP-062D5B7\\PAVAN;initial catalog=db1",
+			"userName": "PAVAN KUMAR REDDY B",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIyNjg4ZDVjZC0xY2E2LTQ5M2EtYmNjNS1hYWUwOWE1Y2VkZDEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationRuntimeselfhosted",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

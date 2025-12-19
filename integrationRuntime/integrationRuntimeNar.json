@@ -1,0 +1,6 @@
+{
+	"name": "integrationRuntimeNar",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

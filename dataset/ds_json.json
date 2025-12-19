@@ -1,0 +1,41 @@
+{
+	"name": "ds_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"lookupcontainername": {
+				"type": "string"
+			},
+			"lookupdirectoriename": {
+				"type": "string"
+			},
+			"lookupfilename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().lookupfilename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().lookupdirectoriename",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().lookupcontainername",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
