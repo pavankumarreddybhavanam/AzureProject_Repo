@@ -806,6 +806,76 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_getmetadataofyear')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Ls_FIlesystem",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"directorry": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"folderPath": {
+							"value": "@dataset().directorry",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Ls_FIlesystem')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_getmetdata_month')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Ls_FIlesystem",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"directory": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Ls_FIlesystem')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_onpremfilesystem')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -884,37 +954,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ds_getmetadataofyear')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Ls_FIlesystem",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"directorry": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "FileServerLocation"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Ls_FIlesystem')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -983,6 +1022,92 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_day')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata_month",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_getmetdata_month",
+								"type": "DatasetReference",
+								"parameters": {
+									"directory": {
+										"value": "@concat('DATA/flight/',pipeline().parameters.p_year,'/',pipeline().parameters.p_month)",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "FileServerReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "Filter_reuired_date",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata_month",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata_month').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@greaterOrEquals(\n  int(item().name),\n  pipeline().parameters.p_date\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"p_year": {
+						"type": "string"
+					},
+					"p_month": {
+						"type": "string"
+					},
+					"p_date": {
+						"type": "int"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_getmetdata_month')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_month')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1006,100 +1131,10 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"directorry": {
-										"value": "@concat('C:\\PAVAN_AZURE_FILES\\',pipeline().parameters.pYear)",
+										"value": "@concat('DATA/flight/',pipeline().parameters.pYear)",
 										"type": "Expression"
 									}
 								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "FileServerReadSettings",
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"pYear": {
-						"type": "string"
-					}
-				},
-				"variables": {
-					"a": {
-						"type": "String"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_getmetadataofyear')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/datapipeline')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Lookup_watermark",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select * from etl_watermark\n",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "ds_sqldb",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": true
-						}
-					},
-					{
-						"name": "Get Metadata_info_of_all_years",
-						"type": "GetMetadata",
-						"dependsOn": [
-							{
-								"activity": "Lookup_watermark",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ds_onpremfilesystem",
-								"type": "DatasetReference",
-								"parameters": {}
 							},
 							"fieldList": [
 								"childItems"
@@ -1115,107 +1150,11 @@
 						}
 					},
 					{
-						"name": "year",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Lookup_watermark",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "year",
-							"value": {
-								"value": "@activity('Lookup_watermark').output.firstRow.last_year",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "month",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Lookup_watermark",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "month",
-							"value": {
-								"value": "@activity('Lookup_watermark').output.firstRow.last_month",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "day",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Lookup_watermark",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "day",
-							"value": {
-								"value": "@activity('Lookup_watermark').output.firstRow.last_day",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "hour",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Lookup_watermark",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "hour",
-							"value": {
-								"value": "@activity('Lookup_watermark').output.firstRow.last_hour",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "filter_reuiredyears",
+						"name": "Filter_months_required",
 						"type": "Filter",
 						"dependsOn": [
 							{
-								"activity": "Get Metadata_info_of_all_years",
+								"activity": "Get Metadata_of_year",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1224,21 +1163,21 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Get Metadata_info_of_all_years').output.childItems",
+								"value": "@activity('Get Metadata_of_year').output.childItems",
 								"type": "Expression"
 							},
 							"condition": {
-								"value": "@greaterOrEquals(   int(item().name),   variables('year') )",
+								"value": "@greaterOrEquals(   int(replace(item().name,'month=','')),pipeline().parameters.pMonthWatermark)",
 								"type": "Expression"
 							}
 						}
 					},
 					{
-						"name": "ForEachyear",
+						"name": "iterating months",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "filter_reuiredyears",
+								"activity": "Filter_months_required",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1247,7 +1186,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('filter_reuiredyears').output.value",
+								"value": "@activity('Filter_months_required').output.value",
 								"type": "Expression"
 							},
 							"isSequential": true,
@@ -1262,13 +1201,21 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "pl_month",
+											"referenceName": "pl_day",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
 										"parameters": {
-											"pYear": {
+											"p_year": {
+												"value": "@pipeline().parameters.pYear",
+												"type": "Expression"
+											},
+											"p_month": {
 												"value": "@item().name",
+												"type": "Expression"
+											},
+											"p_date": {
+												"value": "@pipeline().parameters.pDate",
 												"type": "Expression"
 											}
 										}
@@ -1281,32 +1228,22 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"variables": {
-					"year": {
-						"type": "Integer"
+				"parameters": {
+					"pYear": {
+						"type": "string"
 					},
-					"month": {
-						"type": "Integer"
+					"pMonthWatermark": {
+						"type": "int"
 					},
-					"day": {
-						"type": "Integer"
-					},
-					"hour": {
-						"type": "Integer"
-					},
-					"var1": {
-						"type": "String"
-					},
-					"var2": {
-						"type": "String"
+					"pDate": {
+						"type": "string"
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_sqldb')]",
-				"[concat(variables('factoryId'), '/datasets/ds_onpremfilesystem')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_month')]"
+				"[concat(variables('factoryId'), '/datasets/ds_getmetadataofyear')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_day')]"
 			]
 		}
 	]
