@@ -1,0 +1,283 @@
+{
+	"name": "datapipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup_watermark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from etl_watermark\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_sqldb",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Get Metadata_info_of_all_years",
+				"type": "GetMetadata",
+				"dependsOn": [
+					{
+						"activity": "Lookup_watermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_onpremfilesystem",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "FileServerReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "year",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup_watermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "year",
+					"value": {
+						"value": "@activity('Lookup_watermark').output.firstRow.last_year",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "month",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup_watermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "month",
+					"value": {
+						"value": "@activity('Lookup_watermark').output.firstRow.last_month",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "day",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup_watermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "day",
+					"value": {
+						"value": "@activity('Lookup_watermark').output.firstRow.last_day",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "hour",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup_watermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "hour",
+					"value": {
+						"value": "@activity('Lookup_watermark').output.firstRow.last_hour",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "filter_reuiredyears",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata_info_of_all_years",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata_info_of_all_years').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@greaterOrEquals(   int(item().name),   variables('year') )",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "filter_reuiredyears",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('filter_reuiredyears').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Get Metadata_allmonths",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ds_filesystem_months",
+									"type": "DatasetReference",
+									"parameters": {
+										"pDirectory": {
+											"value": "@concat(   'C:\\PAVAN_AZURE_FILES\\DATA\\flight\\',item().name )",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"childItems"
+								],
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "Filter_reuired_months",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "Get Metadata_allmonths",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('Get Metadata_allmonths').output.childItems",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@greaterOrEquals(int(item().name),variables('month'))",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"year": {
+				"type": "Integer"
+			},
+			"month": {
+				"type": "Integer"
+			},
+			"day": {
+				"type": "Integer"
+			},
+			"hour": {
+				"type": "Integer"
+			}
+		},
+		"annotations": []
+	}
+}

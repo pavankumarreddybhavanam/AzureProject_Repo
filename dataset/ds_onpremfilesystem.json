@@ -1,0 +1,22 @@
+{
+	"name": "ds_onpremfilesystem",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Ls_FIlesystem",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"folderPath": "DATA/flight"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

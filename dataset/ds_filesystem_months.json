@@ -1,0 +1,55 @@
+{
+	"name": "ds_filesystem_months",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Ls_FIlesystem",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"pDirectory": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"folderPath": {
+					"value": "@dataset().pDirectory",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "flight_id",
+				"type": "String"
+			},
+			{
+				"name": "airline",
+				"type": "String"
+			},
+			{
+				"name": "origin",
+				"type": "String"
+			},
+			{
+				"name": "destination",
+				"type": "String"
+			},
+			{
+				"name": "flight_date",
+				"type": "String"
+			},
+			{
+				"name": "hour",
+				"type": "String"
+			}
+		]
+	}
+}
