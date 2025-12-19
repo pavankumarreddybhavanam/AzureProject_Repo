@@ -20,12 +20,14 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"directory": {
-								"value": "@concat('DATA/flight/',pipeline().parameters.p_year)",
+								"value": "@concat('DATA/flight/',pipeline().parameters.p_year,'/',pipeline().parameters.p_month)",
 								"type": "Expression"
 							}
 						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "FileServerReadSettings",
 						"enablePartitionDiscovery": false
