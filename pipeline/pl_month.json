@@ -16,16 +16,18 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "ds_onpremfilesystem",
+						"referenceName": "ds_getmetadataofyear",
 						"type": "DatasetReference",
 						"parameters": {
-							"directory": {
-								"value": "@concat(\r\n  'DATA/flight/',\r\n  replace(pipeline().parameters.pYear,'year=','')\r\n)",
+							"directorry": {
+								"value": "@concat('C:\\PAVAN_AZURE_FILES\\',pipeline().parameters.pYear)",
 								"type": "Expression"
 							}
 						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "FileServerReadSettings",
 						"enablePartitionDiscovery": false
