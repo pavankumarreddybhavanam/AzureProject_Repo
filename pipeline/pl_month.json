@@ -1,0 +1,51 @@
+{
+	"name": "pl_month",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata_of_year",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_onpremfilesystem",
+						"type": "DatasetReference",
+						"parameters": {
+							"directory": {
+								"value": "@concat(\r\n  'DATA/flight/',\r\n  replace(pipeline().parameters.pYear,'year=','')\r\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [],
+					"storeSettings": {
+						"type": "FileServerReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"pYear": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"a": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
