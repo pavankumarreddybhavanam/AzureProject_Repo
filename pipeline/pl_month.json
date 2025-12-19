@@ -36,11 +36,37 @@
 						"type": "DelimitedTextReadSettings"
 					}
 				}
+			},
+			{
+				"name": "Filter_months_required",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata_of_year",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata_of_year').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@greaterOrEquals(   int(replace(item().name,'month=','')),pipeline().parameters.pMonthWatermark)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
 			"pYear": {
 				"type": "string"
+			},
+			"pMonthWatermark": {
+				"type": "int"
 			}
 		},
 		"variables": {
