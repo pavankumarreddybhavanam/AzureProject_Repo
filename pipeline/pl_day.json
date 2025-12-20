@@ -30,6 +30,7 @@
 					],
 					"storeSettings": {
 						"type": "FileServerReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -58,6 +59,115 @@
 						"value": "@greaterOrEquals(\n  int(item().name),\n  pipeline().parameters.p_date\n)",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "ForEach_days",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter_reuired_date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter_reuired_date').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "FileServerReadSettings",
+										"recursive": true,
+										"wildcardFileName": "*",
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_copydays",
+									"type": "DatasetReference",
+									"parameters": {
+										"year_copy": {
+											"value": "@pipeline().parameters.p_year",
+											"type": "Expression"
+										},
+										"month_copy": {
+											"value": "@pipeline().parameters.p_month",
+											"type": "Expression"
+										},
+										"date_copy": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_copydata_sink",
+									"type": "DatasetReference",
+									"parameters": {
+										"year_sink": {
+											"value": "@pipeline().parameters.p_year",
+											"type": "Expression"
+										},
+										"month_sink": {
+											"value": "@pipeline().parameters.p_month",
+											"type": "Expression"
+										},
+										"day_sink": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
 				}
 			}
 		],

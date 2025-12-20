@@ -1,0 +1,21 @@
+{
+	"name": "ds_days",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Ls_FIlesystem",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

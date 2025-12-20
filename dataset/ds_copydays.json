@@ -1,0 +1,36 @@
+{
+	"name": "ds_copydays",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Ls_FIlesystem",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"year_copy": {
+				"type": "string"
+			},
+			"month_copy": {
+				"type": "string"
+			},
+			"date_copy": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"folderPath": {
+					"value": "@concat('DATA/flight/',dataset().year_copy,'/',dataset().month_copy,'/',dataset().date_copy)",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

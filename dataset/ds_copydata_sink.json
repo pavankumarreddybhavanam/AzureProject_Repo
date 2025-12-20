@@ -1,0 +1,37 @@
+{
+	"name": "ds_copydata_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sinkadls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"year_sink": {
+				"type": "string"
+			},
+			"month_sink": {
+				"type": "string"
+			},
+			"day_sink": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@concat(dataset().year_sink,'/',dataset().month_sink,'/',dataset().day_sink)",
+					"type": "Expression"
+				},
+				"fileSystem": "mycontainer"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
