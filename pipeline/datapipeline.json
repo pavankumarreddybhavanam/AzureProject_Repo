@@ -222,9 +222,16 @@
 										"value": "@item().name",
 										"type": "Expression"
 									},
-									"pMonthWatermark": "@variables('month')",
+									"pMonthWatermark": {
+										"value": "@variables('month')",
+										"type": "Expression"
+									},
 									"pDate": {
 										"value": "@variables('day')",
+										"type": "Expression"
+									},
+									"pHour": {
+										"value": "@variables('hour')",
 										"type": "Expression"
 									}
 								}

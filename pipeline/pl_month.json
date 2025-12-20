@@ -30,6 +30,7 @@
 					],
 					"storeSettings": {
 						"type": "FileServerReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -105,6 +106,10 @@
 									"p_date": {
 										"value": "@pipeline().parameters.pDate",
 										"type": "Expression"
+									},
+									"p_hour": {
+										"value": "@pipeline().parameters.pHour",
+										"type": "Expression"
 									}
 								}
 							}
@@ -121,6 +126,9 @@
 				"type": "int"
 			},
 			"pDate": {
+				"type": "string"
+			},
+			"pHour": {
 				"type": "string"
 			}
 		},

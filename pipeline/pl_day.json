@@ -81,91 +81,38 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Copy data1",
-							"type": "Copy",
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
 							"dependsOn": [],
 							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
 								"secureInput": false
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"source": {
-									"type": "DelimitedTextSource",
-									"storeSettings": {
-										"type": "FileServerReadSettings",
-										"recursive": true,
-										"wildcardFileName": "*",
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "DelimitedTextReadSettings"
-									}
+								"pipeline": {
+									"referenceName": "pl_Hour",
+									"type": "PipelineReference"
 								},
-								"sink": {
-									"type": "DelimitedTextSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
+								"waitOnCompletion": true,
+								"parameters": {
+									"pp_year": {
+										"value": "@pipeline().parameters.p_year",
+										"type": "Expression"
 									},
-									"formatSettings": {
-										"type": "DelimitedTextWriteSettings",
-										"quoteAllText": true,
-										"fileExtension": ".txt"
-									}
-								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
+									"pp_month": {
+										"value": "@pipeline().parameters.p_month",
+										"type": "Expression"
+									},
+									"pp_date": {
+										"value": "@pipeline().parameters.p_date",
+										"type": "Expression"
+									},
+									"pp_hour": {
+										"value": "@pipeline().parameters.p_hour",
+										"type": "Expression"
 									}
 								}
-							},
-							"inputs": [
-								{
-									"referenceName": "ds_copydays",
-									"type": "DatasetReference",
-									"parameters": {
-										"year_copy": {
-											"value": "@pipeline().parameters.p_year",
-											"type": "Expression"
-										},
-										"month_copy": {
-											"value": "@pipeline().parameters.p_month",
-											"type": "Expression"
-										},
-										"date_copy": {
-											"value": "@item().name",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "ds_copydata_sink",
-									"type": "DatasetReference",
-									"parameters": {
-										"year_sink": {
-											"value": "@pipeline().parameters.p_year",
-											"type": "Expression"
-										},
-										"month_sink": {
-											"value": "@pipeline().parameters.p_month",
-											"type": "Expression"
-										},
-										"day_sink": {
-											"value": "@item().name",
-											"type": "Expression"
-										}
-									}
-								}
-							]
+							}
 						}
 					]
 				}
@@ -180,6 +127,9 @@
 			},
 			"p_date": {
 				"type": "int"
+			},
+			"p_hour": {
+				"type": "string"
 			}
 		},
 		"annotations": []

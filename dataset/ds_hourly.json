@@ -1,12 +1,12 @@
 {
-	"name": "ds_days",
+	"name": "ds_hourly",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Ls_FIlesystem",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"directoty_hours_pp": {
+			"directory": {
 				"type": "string"
 			}
 		},
@@ -16,7 +16,7 @@
 			"location": {
 				"type": "FileServerLocation",
 				"folderPath": {
-					"value": "@dataset().directoty_hours_pp",
+					"value": "@dataset().directory",
 					"type": "Expression"
 				}
 			},

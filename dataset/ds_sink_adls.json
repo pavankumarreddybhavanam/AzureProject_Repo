@@ -1,12 +1,12 @@
 {
-	"name": "ds_days",
+	"name": "ds_sink_adls",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Ls_FIlesystem",
+			"referenceName": "ls_sinkadls",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"directoty_hours_pp": {
+			"directory": {
 				"type": "string"
 			}
 		},
@@ -14,9 +14,13 @@
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "FileServerLocation",
+				"type": "AzureBlobFSLocation",
 				"folderPath": {
-					"value": "@dataset().directoty_hours_pp",
+					"value": "@dataset().directory",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "mycontainer",
 					"type": "Expression"
 				}
 			},
