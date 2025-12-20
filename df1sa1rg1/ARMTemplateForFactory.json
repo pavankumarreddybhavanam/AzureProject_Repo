@@ -320,6 +320,10 @@
 											"pDate": {
 												"value": "@variables('day')",
 												"type": "Expression"
+											},
+											"pHour": {
+												"value": "@variables('hour')",
+												"type": "Expression"
 											}
 										}
 									}
@@ -921,91 +925,38 @@
 							"isSequential": true,
 							"activities": [
 								{
-									"name": "Copy data1",
-									"type": "Copy",
+									"name": "Execute Pipeline1",
+									"type": "ExecutePipeline",
 									"dependsOn": [],
 									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
 										"secureInput": false
 									},
 									"userProperties": [],
 									"typeProperties": {
-										"source": {
-											"type": "DelimitedTextSource",
-											"storeSettings": {
-												"type": "FileServerReadSettings",
-												"recursive": true,
-												"wildcardFileName": "*",
-												"enablePartitionDiscovery": false
-											},
-											"formatSettings": {
-												"type": "DelimitedTextReadSettings"
-											}
+										"pipeline": {
+											"referenceName": "pl_Hour",
+											"type": "PipelineReference"
 										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
+										"waitOnCompletion": true,
+										"parameters": {
+											"pp_year": {
+												"value": "@pipeline().parameters.p_year",
+												"type": "Expression"
 											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
+											"pp_month": {
+												"value": "@pipeline().parameters.p_month",
+												"type": "Expression"
+											},
+											"pp_date": {
+												"value": "@pipeline().parameters.p_date",
+												"type": "Expression"
+											},
+											"pp_hour": {
+												"value": "@pipeline().parameters.p_hour",
+												"type": "Expression"
 											}
 										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_copydays",
-											"type": "DatasetReference",
-											"parameters": {
-												"year_copy": {
-													"value": "@pipeline().parameters.p_year",
-													"type": "Expression"
-												},
-												"month_copy": {
-													"value": "@pipeline().parameters.p_month",
-													"type": "Expression"
-												},
-												"date_copy": {
-													"value": "@item().name",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_copydata_sink",
-											"type": "DatasetReference",
-											"parameters": {
-												"year_sink": {
-													"value": "@pipeline().parameters.p_year",
-													"type": "Expression"
-												},
-												"month_sink": {
-													"value": "@pipeline().parameters.p_month",
-													"type": "Expression"
-												},
-												"day_sink": {
-													"value": "@item().name",
-													"type": "Expression"
-												}
-											}
-										}
-									]
+									}
 								}
 							]
 						}
@@ -1023,14 +974,16 @@
 					},
 					"p_date": {
 						"type": "int"
+					},
+					"p_hour": {
+						"type": "string"
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_getmetdata_month')]",
-				"[concat(variables('factoryId'), '/datasets/ds_copydays')]",
-				"[concat(variables('factoryId'), '/datasets/ds_copydata_sink')]"
+				"[concat(variables('factoryId'), '/pipelines/pl_Hour')]"
 			]
 		},
 		{
@@ -1143,6 +1096,10 @@
 											"p_date": {
 												"value": "@pipeline().parameters.pDate",
 												"type": "Expression"
+											},
+											"p_hour": {
+												"value": "@pipeline().parameters.pHour",
+												"type": "Expression"
 											}
 										}
 									}
@@ -1162,6 +1119,9 @@
 						"type": "int"
 					},
 					"pDate": {
+						"type": "string"
+					},
+					"pHour": {
 						"type": "string"
 					}
 				},
@@ -1799,7 +1759,12 @@
 							"dataset": {
 								"referenceName": "ds_days",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"directoty_hours_pp": {
+										"value": "@concat('DATA/flight/',pipeline().parameters.pp_year,'/',pipeline().parameters.pp_month,'/',pipeline().parameters.pp_date)",
+										"type": "Expression"
+									}
+								}
 							},
 							"fieldList": [
 								"childItems"
@@ -1812,15 +1777,178 @@
 								"type": "DelimitedTextReadSettings"
 							}
 						}
+					},
+					{
+						"name": "Filter_reuired_hours",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata_days",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata_days').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@greaterOrEquals(\n  int(item().name),\n  int(pipeline().parameters.pp_hour)\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ForEach_for_hours",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter_reuired_hours",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter_reuired_hours').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Copy data_hourly  files",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "FileServerReadSettings",
+												"recursive": true,
+												"wildcardFileName": "*",
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_hourly",
+											"type": "DatasetReference",
+											"parameters": {
+												"directory": {
+													"value": "@concat('DATA/flight/',pipeline().parameters.pp_year,'/',pipeline().parameters.pp_month,'/',pipeline().parameters.pp_date,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_sink_adls",
+											"type": "DatasetReference",
+											"parameters": {
+												"directory": "@concat('DATA/flight/',pipeline().parameters.pp_year,'/',pipeline().parameters.pp_month,'/',pipeline().parameters.pp_date)"
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "ForEach_for_hours",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_update_hourly_watermark]",
+							"storedProcedureParameters": {
+								"source_name": {
+									"value": "flight",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureSqlDatabase1",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"parameters": {
+					"pp_year": {
+						"type": "string"
+					},
+					"pp_month": {
+						"type": "string"
+					},
+					"pp_date": {
+						"type": "string"
+					},
+					"pp_hour": {
+						"type": "string"
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_days')]"
+				"[concat(variables('factoryId'), '/datasets/ds_days')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
+				"[concat(variables('factoryId'), '/datasets/ds_hourly')]",
+				"[concat(variables('factoryId'), '/datasets/ds_sink_adls')]"
 			]
 		},
 		{
@@ -1832,11 +1960,20 @@
 					"referenceName": "Ls_FIlesystem",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"directoty_hours_pp": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
-						"type": "FileServerLocation"
+						"type": "FileServerLocation",
+						"folderPath": {
+							"value": "@dataset().directoty_hours_pp",
+							"type": "Expression"
+						}
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -1847,6 +1984,80 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/Ls_FIlesystem')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_hourly')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Ls_FIlesystem",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"directory": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Ls_FIlesystem')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sink_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sinkadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"directory": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "mycontainer",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sinkadls')]"
 			]
 		}
 	]
