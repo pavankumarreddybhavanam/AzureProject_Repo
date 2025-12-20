@@ -15,6 +15,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_adls'"
 		},
+		"ls_sinkadls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_sinkadls'"
+		},
+		"AzureSqlDatabase2_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase2'"
+		},
 		"Ls_FIlesystem_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'Ls_FIlesystem'"
@@ -43,6 +51,22 @@
 		"ls_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://rg1sa1pavan.dfs.core.windows.net/"
+		},
+		"ls_sinkadls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://rg1sa1pavan.dfs.core.windows.net/"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "server1pvan.database.windows.net"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "db1"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "pavan_admin_login"
 		},
 		"Ls_FIlesystem_properties_typeProperties_host": {
 			"type": "string",
@@ -117,6 +141,45 @@
 			"properties": {
 				"type": "SelfHosted",
 				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sinkadls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_sinkadls_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sinkadls_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('AzureSqlDatabase2_properties_typeProperties_server')]",
+					"database": "[parameters('AzureSqlDatabase2_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('AzureSqlDatabase2_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('AzureSqlDatabase2_password')]"
+					}
+				}
 			},
 			"dependsOn": []
 		},
@@ -299,6 +362,48 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntimeselfhosted')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_copydata_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sinkadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"year_sink": {
+						"type": "string"
+					},
+					"month_sink": {
+						"type": "string"
+					},
+					"day_sink": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@concat(dataset().year_sink,'/',dataset().month_sink,'/',dataset().day_sink)",
+							"type": "Expression"
+						},
+						"fileSystem": "mycontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sinkadls')]"
 			]
 		},
 		{
@@ -951,299 +1056,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/SqlServer1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SqlServerSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"tableOption": "autoCreate",
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "onpremsql_dataset",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_azuresql",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2025-12-19T02:50:32Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/onpremsql_dataset')]",
-				"[concat(variables('factoryId'), '/datasets/ds_azuresql')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_day')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get Metadata_month",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ds_getmetdata_month",
-								"type": "DatasetReference",
-								"parameters": {
-									"directory": {
-										"value": "@concat('DATA/flight/',pipeline().parameters.p_year,'/',pipeline().parameters.p_month)",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "FileServerReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					},
-					{
-						"name": "Filter_reuired_date",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "Get Metadata_month",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Metadata_month').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@greaterOrEquals(\n  int(item().name),\n  pipeline().parameters.p_date\n)",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"p_year": {
-						"type": "string"
-					},
-					"p_month": {
-						"type": "string"
-					},
-					"p_date": {
-						"type": "int"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_getmetdata_month')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_month')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get Metadata_of_year",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ds_getmetadataofyear",
-								"type": "DatasetReference",
-								"parameters": {
-									"directorry": {
-										"value": "@concat('DATA/flight/',pipeline().parameters.pYear)",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "FileServerReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					},
-					{
-						"name": "Filter_months_required",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "Get Metadata_of_year",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Metadata_of_year').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@greaterOrEquals(   int(replace(item().name,'month=','')),pipeline().parameters.pMonthWatermark)",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "iterating months",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Filter_months_required",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Filter_months_required').output.value",
-								"type": "Expression"
-							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "Execute Pipeline1",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "pl_day",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"p_year": {
-												"value": "@pipeline().parameters.pYear",
-												"type": "Expression"
-											},
-											"p_month": {
-												"value": "@item().name",
-												"type": "Expression"
-											},
-											"p_date": {
-												"value": "@pipeline().parameters.pDate",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"pYear": {
-						"type": "string"
-					},
-					"pMonthWatermark": {
-						"type": "int"
-					},
-					"pDate": {
-						"type": "string"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_getmetadataofyear')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_day')]"
 			]
 		}
 	]

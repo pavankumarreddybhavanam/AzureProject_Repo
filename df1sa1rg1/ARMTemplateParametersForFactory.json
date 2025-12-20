@@ -20,6 +20,12 @@
 		"ls_adls_accountKey": {
 			"value": ""
 		},
+		"ls_sinkadls_accountKey": {
+			"value": ""
+		},
+		"AzureSqlDatabase2_password": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "server1pvan.database.windows.net"
 		},
@@ -40,6 +46,18 @@
 		},
 		"ls_adls_properties_typeProperties_url": {
 			"value": "https://rg1sa1pavan.dfs.core.windows.net/"
+		},
+		"ls_sinkadls_properties_typeProperties_url": {
+			"value": "https://rg1sa1pavan.dfs.core.windows.net/"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_server": {
+			"value": "server1pvan.database.windows.net"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_database": {
+			"value": "db1"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_userName": {
+			"value": "pavan_admin_login"
 		}
 	}
 }

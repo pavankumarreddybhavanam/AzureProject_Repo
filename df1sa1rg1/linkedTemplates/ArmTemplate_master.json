@@ -28,6 +28,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_adls'"
 		},
+		"ls_sinkadls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_sinkadls'"
+		},
+		"AzureSqlDatabase2_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase2'"
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "server1pvan.database.windows.net"
@@ -55,6 +63,22 @@
 		"ls_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://rg1sa1pavan.dfs.core.windows.net/"
+		},
+		"ls_sinkadls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://rg1sa1pavan.dfs.core.windows.net/"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "server1pvan.database.windows.net"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "db1"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "pavan_admin_login"
 		},
 		"containerUri": {
 			"type": "string",
@@ -89,6 +113,12 @@
 					"ls_adls_accountKey": {
 						"value": "[parameters('ls_adls_accountKey')]"
 					},
+					"ls_sinkadls_accountKey": {
+						"value": "[parameters('ls_sinkadls_accountKey')]"
+					},
+					"AzureSqlDatabase2_password": {
+						"value": "[parameters('AzureSqlDatabase2_password')]"
+					},
 					"Ls_FIlesystem_password": {
 						"value": "[parameters('Ls_FIlesystem_password')]"
 					},
@@ -109,6 +139,18 @@
 					},
 					"ls_adls_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_properties_typeProperties_url')]"
+					},
+					"ls_sinkadls_properties_typeProperties_url": {
+						"value": "[parameters('ls_sinkadls_properties_typeProperties_url')]"
+					},
+					"AzureSqlDatabase2_properties_typeProperties_server": {
+						"value": "[parameters('AzureSqlDatabase2_properties_typeProperties_server')]"
+					},
+					"AzureSqlDatabase2_properties_typeProperties_database": {
+						"value": "[parameters('AzureSqlDatabase2_properties_typeProperties_database')]"
+					},
+					"AzureSqlDatabase2_properties_typeProperties_userName": {
+						"value": "[parameters('AzureSqlDatabase2_properties_typeProperties_userName')]"
 					},
 					"Ls_FIlesystem_properties_typeProperties_host": {
 						"value": "[parameters('Ls_FIlesystem_properties_typeProperties_host')]"
